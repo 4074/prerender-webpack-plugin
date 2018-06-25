@@ -27,25 +27,25 @@ export default class WebpackPrerenderPlugin {
 
   apply(compiler) {
     compiler.plugin('after-emit', (compilation, callback) => {
-      if (!this.enabled) {
+      if (!this.options.enabled) {
         return callback()
       }
       const app = express()
-      const port = 8848
+      const {host, port, duration, selector, template, pattern} = this.options
 
       app.use(express.static(compiler.outputPath))
-
       app.listen(port, async () => {
-        console.log('app listen on', port)
+
+
         const html = await this.getHtml(
-          'http://' + this.options.host + ':' + this.options.port,
-          this.options.duration,
-          this.options.selector
+          'http://' + host + ':' + port,
+          duration,
+          selector
         )
 
-        const filepath = path.resolve(compiler.outputPath, this.options.template)
+        const filepath = path.resolve(compiler.outputPath, template)
         let filetext = fs.readFileSync(filepath, 'utf-8').toString()
-        filetext = filetext.replace(this.options.pattern, html)
+        filetext = filetext.replace(pattern, html)
 
         fs.writeFileSync(filepath, filetext)
 
