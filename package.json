@@ -1,0 +1,46 @@
+{
+  "name": "prerender-webpack-plugin",
+  "version": "1.0.0",
+  "description": "A prerender plugin for webpack. Using express and puppeteer. Work well with React/Vue.",
+  "main": "build/index.js",
+  "files": [
+    "build/*"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "babel src --out-dir build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/4074/prerender-webpack-plugin.git"
+  },
+  "keywords": [],
+  "author": "fourzerosevenfour@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/4074/prerender-webpack-plugin/issues"
+  },
+  "homepage": "https://github.com/4074/prerender-webpack-plugin#readme",
+  "dependencies": {
+    "express": "^4.16.3",
+    "puppeteer": "^1.4.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-stage-0": "^6.24.1"
+  },
+  "babel": {
+    "presets": [
+      [
+        "env",
+        {
+          "targets": {
+            "node": "8.11.3"
+          }
+        }
+      ],
+      "stage-0"
+    ]
+  }
+}
