@@ -33,12 +33,7 @@
   "babel": {
     "presets": [
       [
-        "env",
-        {
-          "targets": {
-            "node": "8.11.3"
-          }
-        }
+        "env"
       ],
       "stage-0"
     ]
