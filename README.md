@@ -1,10 +1,10 @@
 # Prerender-webpack-plugin
 
-    What is Prerendering?
-
-    Pre-rendering describes the process of rendering a client-side application at build time, producing useful static HTML that can be sent to the browser instead of an empty bootstrapping page.
-
-    Pre-rendering is like Server-Side Rendering, just done at build time to produce static files. Both techniques help get meaningful content onto the user's screen faster.
+>What is Prerendering?
+>
+>Pre-rendering describes the process of rendering a client-side application at build time, producing useful static HTML that can be sent to the browser instead of an empty bootstrapping page.
+>
+>Pre-rendering is like Server-Side Rendering, just done at build time to produce static files. Both techniques help get meaningful content onto the user's screen faster.
 
 ## How does it work?
 
