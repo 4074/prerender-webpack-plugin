@@ -28,15 +28,15 @@ function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, a
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
 const defaults = {
-  serverPath: '/',
-  host: '127.0.0.1',
-  port: 8848,
+  staticPath: '/',
   route: '/',
-  duration: 4000,
   template: 'index.html',
   selector: '#root',
-  pattern: '%render-html%',
-  enabled: true
+  replacement: '{{prerender}}',
+  host: '127.0.0.1',
+  port: 8848,
+  duration: 4000,
+  disabled: false
 };
 
 class WebpackPrerenderPlugin {
@@ -49,25 +49,28 @@ class WebpackPrerenderPlugin {
     var _this = this;
 
     compiler.plugin('after-emit', (compilation, callback) => {
-      if (!this.options.enabled) {
+      if (this.options.disabled) {
         return callback();
       }
       const app = (0, _express2.default)();
-      const { host, port, duration, selector, template, pattern } = this.options;
+      const { staticPath, host, port, duration, selector, template, replacement } = this.options;
 
-      app.use(_express2.default.static(compiler.outputPath));
+      // run a web server
+      app.use(_express2.default.static(_path2.default.resolve(compiler.outputPath, '.' + this.options.staticPath)));
       app.listen(port, _asyncToGenerator(function* () {
 
+        // get html string from browser
         const html = yield _this.getHtml('http://' + host + ':' + port, duration, selector);
 
+        // write html file
         const filepath = _path2.default.resolve(compiler.outputPath, template);
         let filetext = _fs2.default.readFileSync(filepath, 'utf-8').toString();
-        filetext = filetext.replace(pattern, html);
-
+        filetext = filetext.replace(replacement, html);
         _fs2.default.writeFileSync(filepath, filetext);
 
         callback();
 
+        // close the server
         process.exit();
       }));
     });
@@ -75,14 +78,15 @@ class WebpackPrerenderPlugin {
 
   getHtml(url, duration, selector) {
     return _asyncToGenerator(function* () {
+      // open the web page
       const browser = yield _puppeteer2.default.launch({ args: ['--no-sandbox'] });
-
       const page = yield browser.newPage();
-
       yield page.goto(url);
 
+      // delay for browser rendering
       yield delay(duration);
 
+      // get html string
       return yield page.$eval(selector, function (e) {
         return e.innerHTML;
       });

@@ -5,15 +5,15 @@ import express from 'express'
 
 const delay = ms => new Promise(res => setTimeout(res, ms))
 const defaults = {
-  serverPath: '/',
-  host: '127.0.0.1',
-  port: 8848,
+  staticPath: '/',
   route: '/',
-  duration: 4000,
   template: 'index.html',
   selector: '#root',
-  pattern: '%render-html%',
-  enabled: true
+  replacement: '{{prerender}}',
+  host: '127.0.0.1',
+  port: 8848,
+  duration: 4000,
+  disabled: false
 }
 
 export default class WebpackPrerenderPlugin {
@@ -27,44 +27,47 @@ export default class WebpackPrerenderPlugin {
 
   apply(compiler) {
     compiler.plugin('after-emit', (compilation, callback) => {
-      if (!this.options.enabled) {
+      if (this.options.disabled) {
         return callback()
       }
       const app = express()
-      const {host, port, duration, selector, template, pattern} = this.options
+      const {staticPath, host, port, duration, selector, template, replacement} = this.options
 
-      app.use(express.static(compiler.outputPath))
+      // run a web server
+      app.use(express.static(path.resolve(compiler.outputPath, '.' + this.options.staticPath)))
       app.listen(port, async () => {
 
-
+        // get html string from browser
         const html = await this.getHtml(
           'http://' + host + ':' + port,
           duration,
           selector
         )
 
+        // write html file
         const filepath = path.resolve(compiler.outputPath, template)
         let filetext = fs.readFileSync(filepath, 'utf-8').toString()
-        filetext = filetext.replace(pattern, html)
-
+        filetext = filetext.replace(replacement, html)
         fs.writeFileSync(filepath, filetext)
 
         callback()
 
+        // close the server
         process.exit()
       })
     })
   }
 
   async getHtml(url, duration, selector) {
+    // open the web page
     const browser = await puppeteer.launch({ args: ['--no-sandbox'] })
-
     const page = await browser.newPage()
-
     await page.goto(url)
 
+    // delay for browser rendering
     await delay(duration)
 
+    // get html string
     return await page.$eval(selector, e => e.innerHTML)
   }
 }
